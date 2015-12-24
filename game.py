@@ -75,8 +75,12 @@ class TicTacToe(AbstractGame):
             print("Invalid move. Try again.")
         return updated
 
-    # Convert matrix repreentation to character
     def _matConvert(self, coord):
+        """
+        Convert matrix representation to character
+        :param coord: matrix coordinate of spot in game to change
+        :return: character of played state
+        """
         num = self.state[coord[0]][coord[1]]
         character = ' '
         if num == 1:
@@ -85,14 +89,21 @@ class TicTacToe(AbstractGame):
             character = 'O'
         return character
 
-    # Helper function for printing
     def _strLine(self, line):
+        """
+        Generate a string representing a row of the matrix
+        :param line: integer representing row to print. Starting from 0.
+        :return: string representing the row. Eg " X |   | O "
+        """
         return ' {0} | {1} | {2} '.format(self._matConvert([line, 0]),
                                           self._matConvert([line, 1]),
                                           self._matConvert([line, 2]))
 
-    # Print out the game. Useful for debugging.
     def __str__(self):
+        """
+        String representation of the game state.
+        :return: string
+        """
         output = self._strLine(0)
         output += '\n-----------'
         output += '\n' + self._strLine(1)
