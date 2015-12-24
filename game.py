@@ -95,14 +95,17 @@ class TicTacToe(AbstractGame):
             self.winner = winner
         return won
 
-
-    def _boundCheck(self, move):
+    def possibleMoves(self):
         """
-        Check move is between 0 and 2 (inclusive)
-        :param move: integer
-        :return: bool True if move is between 0 and 2
+        :rtype: set
+        :return: Set of possible moves for the game.
         """
-        return (move >= 0) & (move <= 2) & (isinstance(move, int))
+        moves = set()
+        for i in range(3):
+            for j in range(3):
+                if self.state[i][j] == 0:
+                    moves.add((i, j))
+        return moves
 
     def _acceptableMove(self, move):
         """
@@ -110,11 +113,7 @@ class TicTacToe(AbstractGame):
         :param move: must be an array of length 2
         :return: bool. True if move is ok, false otherwise
         """
-        inbounds = self._boundCheck(move[0]) & self._boundCheck(move[1])
-        notplayed = False
-        if inbounds:
-            notplayed = (self.state[move[0]][move[1]] == 0)
-        return inbounds & notplayed
+        return move in self.possibleMoves()
 
     def _updateState(self, move):
         """
@@ -128,7 +127,7 @@ class TicTacToe(AbstractGame):
             self.checkWin()
             updated = True
         else:
-            print("Invalid move. Try again.")
+            print("Invalid move. Try again.\n")
         return updated
 
     def _matConvert(self, coord):
@@ -160,7 +159,7 @@ class TicTacToe(AbstractGame):
         String representation of the game state.
         :return: string
         """
-        output = self._strLine(0)
+        output = '\n' + self._strLine(0)
         output += '\n-----------'
         output += '\n' + self._strLine(1)
         output += '\n-----------'
