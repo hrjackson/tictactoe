@@ -21,6 +21,13 @@ class AbstractGame(object):
         """
         self.playerTurn = self.playerTurn % self.players + 1
 
+    def checkWin(self):
+        """
+        Should check to see if the game has been won yet. Sets winner to playerTurn if won.
+        :return: bool. True if game won, false otherwise.
+        """
+        raise NotImplementedError
+
     def _updateState(self, move):
         """
         Updates the state of the game.
@@ -61,6 +68,54 @@ class TicTacToe(AbstractGame):
         super(TicTacToe, self).__init__(2)  # Run the AbstractGame init function
         self.state = [[0 for x in range(3)] for x in range(3)]
 
+    def checkWin(self):
+        """
+        Should check to see if the game has been won yet. Sets winner to playerTurn if won.
+        :return: bool. True if game won, false otherwise.
+        """
+        won = False
+        # Check the rows and columns first
+        for i in range(3):
+            won = (self.state[0][i] == self.state[1][i] == self.state[2][i] != 0)
+            winner = self.state[0][i]
+            if won:
+                break
+            won = (self.state[i][0] == self.state[i][1] == self.state[i][2] != 0)
+            winner = self.state[i][0]
+            if won:
+                break
+
+        # Check diagonals if not there yet
+        if not won:
+            won = ((self.state[0][0] == self.state[1][1] == self.state[2][2] != 0) or
+                   (self.state[0][2] == self.state[1][1] == self.state[2][0] != 0))
+            winner = self.state[1][1]
+        # Have checked all possibilities.
+        if won:
+            self.winner = winner
+        return won
+
+
+    def _boundCheck(self, move):
+        """
+        Check move is between 0 and 2 (inclusive)
+        :param move: integer
+        :return: bool True if move is between 0 and 2
+        """
+        return (move >= 0) & (move <= 2) & (isinstance(move, int))
+
+    def _acceptableMove(self, move):
+        """
+        Tests move to see if it is legal, within the rules of Tic Tac Toe, and of the right format.
+        :param move: must be an array of length 2
+        :return: bool. True if move is ok, false otherwise
+        """
+        inbounds = self._boundCheck(move[0]) & self._boundCheck(move[1])
+        notplayed = False
+        if inbounds:
+            notplayed = (self.state[move[0]][move[1]] == 0)
+        return inbounds & notplayed
+
     def _updateState(self, move):
         """
         Change the matrix to have the player as it's entry
@@ -68,8 +123,9 @@ class TicTacToe(AbstractGame):
         :return: Bool. True if successful update, false otherwise.
         """
         updated = False
-        if self.state[move[0]][move[1]] == 0:
+        if self._acceptableMove(move):
             self.state[move[0]][move[1]] = self.playerTurn
+            self.checkWin()
             updated = True
         else:
             print("Invalid move. Try again.")
@@ -109,4 +165,4 @@ class TicTacToe(AbstractGame):
         output += '\n' + self._strLine(1)
         output += '\n-----------'
         output += '\n' + self._strLine(2)
-        return output
+        return output + '\n'
